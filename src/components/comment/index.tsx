@@ -3,7 +3,7 @@ import React, { forwardRef, useCallback, useImperativeHandle, useRef, useState }
 import { IAnnotationComment, IAnnotationStore, PdfjsAnnotationSubtype } from '../../const/definitions'
 import { useTranslation } from 'react-i18next'
 import { formatPDFDate, formatTimestamp, generateUUID } from '../../utils/utils'
-import { Button, Dropdown, Input } from 'antd'
+import { Button, Dropdown, Input, Tooltip } from 'antd'
 import { MoreOutlined } from '@ant-design/icons'
 import {
     CircleIcon,
@@ -17,7 +17,9 @@ import {
     UnderlineIcon,
     DownloadIcon,
     SignatureIcon,
-    StarIcon
+    StarIcon,
+    DeleteIcon,
+    EditIcon
 } from '../../const/icon'
 
 const iconMapping: Record<PdfjsAnnotationSubtype, React.ReactNode> = {
@@ -323,9 +325,9 @@ const CustomComment = forwardRef<CustomCommentRef, CustomCommentProps>(function 
                         >
                             <div className="title">
                                 <AnnotationIcon subtype={annotation.subtype} />
-                                <div className="username">
+                                {/* <div className="username">
                                     {annotation.title}
-                                </div>
+                                </div> */}
                                 <span className="tool">
                                     {/* {formatPDFDate(annotation.date)} */}
                                     {/* {
@@ -336,19 +338,20 @@ const CustomComment = forwardRef<CustomCommentRef, CustomCommentProps>(function 
                                         </button>
                                     } */}
                                     {
-                                        <button style={{ marginLeft: '3%' }} onClick={() => {
-                                            setEditAnnotation(annotation)
-                                            }}>
-                                            Edit
-                                        </button>
+                                        <Tooltip title="Edit this note">
+                                            <button style={{ marginLeft: '3%' }} onClick={() => {
+                                                setEditAnnotation(annotation)
+                                                }}>
+                                                <EditIcon />
+                                            </button>
+                                        </Tooltip>
                                     }
                                     {
-                                        <button style={{ marginLeft: '3%' }} onClick={() => deleteAnnotation(annotation)}>
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash" viewBox="0 0 16 16">
-                                                <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z" />
-                                                <path d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z" />
-                                            </svg>
-                                        </button>
+                                        <Tooltip title="Delete note">
+                                            <button style={{ marginLeft: '3%' }} onClick={() => deleteAnnotation(annotation)}>
+                                                <DeleteIcon />
+                                            </button>
+                                        </Tooltip>
                                     }
                                     {/* <Dropdown
                                         menu={{
@@ -391,24 +394,25 @@ const CustomComment = forwardRef<CustomCommentRef, CustomCommentProps>(function 
                             {annotation.comments?.map((reply, index) => (
                                 <div className="reply" key={index}>
                                     <div className="title">
-                                        <div className="username"> {reply.title}</div>
+                                        {/* <div className="username"> {reply.title}</div> */}
                                         <span className="tool">
                                             {/* {formatPDFDate(reply.date)} */}
                                             {
-                                                <button style={{ marginLeft: '3%' }} onClick={() => {
-                                                    setCurrentReply(reply)
-                                                    {editReplyInput(annotation, reply)}
-                                                    }}>
-                                                    Edit
-                                                </button>
+                                                <Tooltip title="Edit this note">
+                                                    <button style={{ marginLeft: '3%' }} onClick={() => {
+                                                        setCurrentReply(reply)
+                                                        {editReplyInput(annotation, reply)}
+                                                        }}>
+                                                        <EditIcon />
+                                                    </button>
+                                                </Tooltip>
                                             }
                                             {
-                                                <button style={{ marginLeft: '3%' }} onClick={() => deleteReply(annotation, reply)}>
-                                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash" viewBox="0 0 16 16">
-                                                        <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z" />
-                                                        <path d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z" />
-                                                    </svg>
-                                                </button>
+                                                <Tooltip title="Delete note">
+                                                    <button style={{ marginLeft: '3%' }} onClick={() => deleteReply(annotation, reply)}>
+                                                        <DeleteIcon />
+                                                    </button>
+                                                </Tooltip>
                                             }
                                             {/* <Dropdown
                                                 menu={{
@@ -460,13 +464,12 @@ const CustomComment = forwardRef<CustomCommentRef, CustomCommentProps>(function 
     return (
         <div className="CustomComment">
             <div className="filters">
-                {t('comment.total', { value: annotations.length })}
-                <Button style={{ marginLeft: '1%' }} onClick={deleteAllAnnotations} type="danger">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash" viewBox="0 0 16 16">
-                        <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z" />
-                        <path d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z" />
-                    </svg>
-                </Button>
+                <strong>Notes :</strong> { annotations.length }
+                <Tooltip title="Delete all notes">
+                    <Button style={{ marginLeft: '60%' }} onClick={deleteAllAnnotations} color="danger" variant="filled">
+                        <DeleteIcon />
+                    </Button>
+                </Tooltip>
             </div>
             <div className="list">{comments}</div>
         </div>

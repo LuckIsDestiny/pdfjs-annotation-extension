@@ -278,30 +278,6 @@ export const annotationDefinitions: IAnnotationType[] = [
             fontSize: defaultOptions.setting.FONT_SIZE, // 默认字体大小
             opacity: defaultOptions.setting.OPACITY // 默认透明度
         }
-    },
-    {
-        name: 'signature',
-        type: AnnotationType.SIGNATURE,
-        pdfjsEditorType: PdfjsAnnotationEditorType.STAMP,
-        pdfjsAnnotationType: PdfjsAnnotationType.CARET,
-        subtype: 'Caret',
-        isOnce: true,
-        readonly: false,
-        icon: <SignatureIcon />,
-        style: {
-            strokeWidth: 3, // 默认线条宽度
-            opacity: 1 // 默认不透明度
-        }
-    },
-    {
-        name: 'stamp',
-        type: AnnotationType.STAMP,
-        pdfjsEditorType: PdfjsAnnotationEditorType.STAMP,
-        pdfjsAnnotationType: PdfjsAnnotationType.STAMP,
-        subtype: 'Stamp',
-        isOnce: true,
-        readonly: false,
-        icon: <StampIcon />
     }
 ]
 
