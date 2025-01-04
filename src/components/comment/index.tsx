@@ -19,7 +19,8 @@ import {
     SignatureIcon,
     StarIcon,
     DeleteIcon,
-    EditIcon
+    EditIcon,
+    BookmarkIcon
 } from '../../const/icon'
 
 const iconMapping: Record<PdfjsAnnotationSubtype, React.ReactNode> = {
@@ -30,7 +31,7 @@ const iconMapping: Record<PdfjsAnnotationSubtype, React.ReactNode> = {
     Underline: <UnderlineIcon />,
     Squiggly: <FreeHighlightIcon />,
     StrikeOut: <StrikeoutIcon />,
-    Stamp: <StampIcon />,
+    Stamp: <BookmarkIcon />,
     Line: <FreehandIcon />,
     Square: <RectangleIcon />,
     Polygon: <FreehandIcon />,
@@ -134,7 +135,7 @@ const CustomComment = forwardRef<CustomCommentRef, CustomCommentProps>(function 
         setEditAnnotation(null)
     }
 
-    const groupedAnnotations = annotations.reduce(
+    const groupedAnnotations = annotations?.filter(annote=>annote?.subtype==='Stamp').reduce(
         (acc, annotation) => {
             if (!acc[annotation.pageNumber]) {
                 acc[annotation.pageNumber] = []
@@ -214,7 +215,7 @@ const CustomComment = forwardRef<CustomCommentRef, CustomCommentProps>(function 
     // Comment 编辑框
     const commentInput = useCallback(
         (annotation: IAnnotationStore) => {
-            let comment = ''
+            let comment = annotation?.contentsObj?.text ?? ''
             if (editAnnotation && currentAnnotation?.id === annotation.id) {
                 return (
                     <>
@@ -238,7 +239,6 @@ const CustomComment = forwardRef<CustomCommentRef, CustomCommentProps>(function 
                     </>
                 )
             }
-            return <p>{annotation.contentsObj.text}</p>
         },
         [editAnnotation, currentAnnotation]
     )
@@ -305,7 +305,7 @@ const CustomComment = forwardRef<CustomCommentRef, CustomCommentProps>(function 
         },
         [replyAnnotation, currentReply]
     )
-
+    console.log('groupedAnnotations', groupedAnnotations)
     const comments = Object.entries(groupedAnnotations).map(([pageNumber, annotationsForPage]) => {
         // 根据 konvaClientRect.y 对 annotationsForPage 进行排序
         const sortedAnnotations = annotationsForPage.sort((a, b) => a.konvaClientRect.y - b.konvaClientRect.y)
@@ -325,135 +325,29 @@ const CustomComment = forwardRef<CustomCommentRef, CustomCommentProps>(function 
                         >
                             <div className="title">
                                 <AnnotationIcon subtype={annotation.subtype} />
-                                {/* <div className="username">
-                                    {annotation.title}
-                                </div> */}
-                                <span className="tool">
-                                    {/* {formatPDFDate(annotation.date)} */}
-                                    {/* {
-                                        <button style={{ marginLeft: '3%' }} onClick={() => {
-                                            setReplyAnnotation(annotation)
-                                            }}>
-                                            Reply
-                                        </button>
-                                    } */}
+                                <div className="username">
+                                    {annotation?.contentsObj?.text}
+                                </div>
+                                <span className="tool" style={{ height: '28px' }}>
                                     {
-                                        <Tooltip title="Edit this note">
+                                        <Tooltip placement="leftTop" title="Edit this note">
                                             <button style={{ marginLeft: '3%' }} onClick={() => {
                                                 setEditAnnotation(annotation)
-                                                }}>
+                                            }}>
                                                 <EditIcon />
                                             </button>
                                         </Tooltip>
                                     }
                                     {
-                                        <Tooltip title="Delete note">
+                                        <Tooltip placement="leftTop" title="Delete note">
                                             <button style={{ marginLeft: '3%' }} onClick={() => deleteAnnotation(annotation)}>
                                                 <DeleteIcon />
                                             </button>
                                         </Tooltip>
                                     }
-                                    {/* <Dropdown
-                                        menu={{
-                                            items: [
-                                                {
-                                                    label: t('normal.reply'),
-                                                    key: '0',
-                                                    onClick: e => {
-                                                        e.domEvent.stopPropagation()
-                                                        setReplyAnnotation(annotation)
-                                                    }
-                                                },
-                                                {
-                                                    label: t('normal.edit'),
-                                                    key: '1',
-                                                    onClick: e => {
-                                                        e.domEvent.stopPropagation()
-                                                        setEditAnnotation(annotation)
-                                                    }
-                                                }
-                                                // {
-                                                //     label: t('normal.delete'),
-                                                //     key: '3',
-                                                //     onClick: e => {
-                                                //         e.domEvent.stopPropagation()
-                                                //         deleteAnnotation(annotation)
-                                                //     }
-                                                // }
-                                            ]
-                                        }}
-                                        trigger={['click']}
-                                    >
-                                        <span className="icon">
-                                            <MoreOutlined />
-                                        </span>
-                                    </Dropdown> */}
                                 </span>
                             </div>
                             {commentInput(annotation)}
-                            {annotation.comments?.map((reply, index) => (
-                                <div className="reply" key={index}>
-                                    <div className="title">
-                                        {/* <div className="username"> {reply.title}</div> */}
-                                        <span className="tool">
-                                            {/* {formatPDFDate(reply.date)} */}
-                                            {
-                                                <Tooltip title="Edit this note">
-                                                    <button style={{ marginLeft: '3%' }} onClick={() => {
-                                                        setCurrentReply(reply)
-                                                        {editReplyInput(annotation, reply)}
-                                                        }}>
-                                                        <EditIcon />
-                                                    </button>
-                                                </Tooltip>
-                                            }
-                                            {
-                                                <Tooltip title="Delete note">
-                                                    <button style={{ marginLeft: '3%' }} onClick={() => deleteReply(annotation, reply)}>
-                                                        <DeleteIcon />
-                                                    </button>
-                                                </Tooltip>
-                                            }
-                                            {/* <Dropdown
-                                                menu={{
-                                                    items: [
-                                                        {
-                                                            label: t('normal.edit'),
-                                                            key: '1',
-                                                            onClick: e => {
-                                                                e.domEvent.stopPropagation()
-                                                                setCurrentReply(reply)
-                                                            }
-                                                        }
-                                                        // {
-                                                        //     label: t('normal.delete'),
-                                                        //     key: '2',
-                                                        //     onClick: e => {
-                                                        //         e.domEvent.stopPropagation()
-                                                        //         deleteReply(annotation, reply)
-                                                        //     }
-                                                        // }
-                                                    ]
-                                                }}
-                                                trigger={['click']}
-                                            >
-                                                <span className="icon">
-                                                    <MoreOutlined />
-                                                </span>
-                                            </Dropdown> */}
-                                        </span>
-                                    </div>
-                                    {editReplyInput(annotation, reply)}
-                                </div>
-                            ))}
-                            <div className="reply-input">
-                                {replyInput(annotation)}
-                                {!replyAnnotation && !currentReply && !editAnnotation && currentAnnotation?.id === annotation.id && (
-                                    <Button style={{ marginTop: '8px' }} onClick={() => setReplyAnnotation(annotation)} type="primary" block>
-                                        Add Note
-                                    </Button>
-                                )}
-                            </div>
                         </div>
                     )
                 })}
@@ -463,14 +357,6 @@ const CustomComment = forwardRef<CustomCommentRef, CustomCommentProps>(function 
 
     return (
         <div className="CustomComment">
-            <div className="filters">
-                <strong>Notes :</strong> { annotations.length }
-                <Tooltip title="Delete all notes">
-                    <Button style={{ marginLeft: '60%' }} onClick={deleteAllAnnotations} color="danger" variant="filled">
-                        <DeleteIcon />
-                    </Button>
-                </Tooltip>
-            </div>
             <div className="list">{comments}</div>
         </div>
     )

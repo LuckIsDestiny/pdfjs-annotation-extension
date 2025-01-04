@@ -16,34 +16,13 @@ const StampTool: React.FC<StampToolProps> = props => {
     const maxSize: number = defaultOptions.stamp.MAX_SIZE
 
     // 文件输入变化的事件处理函数
-    const onInputFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        const target = event.target as HTMLInputElement // 获取事件目标（即文件输入）
-        const files = target.files // 获取文件列表
-        if (files?.length) {
-            const _file = files[0] // 获取第一个文件
-            if (_file.size > maxSize) {
-                // 如果文件大小超过最大限制，显示提示并返回
-                alert(t('normal.fileSizeLimit', { value: formatFileSize(maxSize) }))
-                // alert(`文件大小超出 ${formatFileSize(maxSize)} 限制`)
-                return
-            }
-            const reader = new FileReader() // 创建文件读取器
-
-            // 文件读取完成后的处理函数
-            reader.onload = e => {
-                if (typeof e.target?.result === 'string') {
-                    target.value = ''
-                    // 如果结果是字符串，调用 onAdd 回调函数
-                    props.onAdd(e.target.result)
-                }
-            }
-            reader.readAsDataURL(_file) // 以数据 URL 的形式读取文件
-        }
+    const onInputFileChange = () => {
+        props.onAdd('images/bookmark.png')
     }
 
     return (
         <div className="StampTool">
-            <input type="file" accept=".png,.jpg" onChange={onInputFileChange} />
+            <input type="button" accept=".png,.jpg" onClick={onInputFileChange} />
             <div className="icon">{props.annotation.icon}</div>
             <div className="name">{t(`annotations.${props.annotation.name}`)}</div>
         </div>

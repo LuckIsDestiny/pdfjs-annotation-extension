@@ -1,8 +1,8 @@
 .CustomComment {
-    width: 330px;
+    width: var(--sidebar-width);
     position: absolute;
-    top: 107px;
-    right: 0;
+    top: 70vh;
+    left: 0;
     height: calc(100vh - 107px);
     color: var(--main-color);
     border-left: 1px solid var(--toolbar-border-color);

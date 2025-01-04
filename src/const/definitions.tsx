@@ -1,13 +1,9 @@
 import {
-    CircleIcon,
+    BookmarkIcon,
     FreehandIcon,
-    FreeHighlightIcon,
     FreetextIcon,
     HighlightIcon,
-    RectangleIcon,
     SelectIcon,
-    SignatureIcon,
-    StampIcon,
     StrikeoutIcon,
     UnderlineIcon
 } from './icon'
@@ -205,36 +201,6 @@ export const annotationDefinitions: IAnnotationType[] = [
         }
     },
     {
-        name: 'rectangle',
-        type: AnnotationType.RECTANGLE,
-        pdfjsEditorType: PdfjsAnnotationEditorType.INK,
-        pdfjsAnnotationType: PdfjsAnnotationType.SQUARE,
-        subtype: 'Square',
-        isOnce: true,
-        readonly: false,
-        icon: <RectangleIcon />,
-        style: {
-            color: defaultOptions.setting.COLOR, // 默认矩形颜色
-            strokeWidth: defaultOptions.setting.STROKE_WIDTH, // 默认线条宽度
-            opacity: defaultOptions.setting.OPACITY // 默认透明度
-        }
-    },
-    {
-        name: 'circle',
-        type: AnnotationType.CIRCLE,
-        pdfjsEditorType: PdfjsAnnotationEditorType.INK,
-        pdfjsAnnotationType: PdfjsAnnotationType.CIRCLE,
-        subtype: 'Circle',
-        isOnce: true,
-        readonly: false,
-        icon: <CircleIcon />,
-        style: {
-            color: defaultOptions.setting.COLOR, // 默认圆形颜色
-            strokeWidth: defaultOptions.setting.STROKE_WIDTH, // 默认线条宽度
-            opacity: defaultOptions.setting.OPACITY // 默认透明度
-        }
-    },
-    {
         name: 'freehand',
         type: AnnotationType.FREEHAND,
         pdfjsEditorType: PdfjsAnnotationEditorType.INK,
@@ -247,21 +213,6 @@ export const annotationDefinitions: IAnnotationType[] = [
             color: defaultOptions.setting.COLOR, // 默认自由绘制颜色
             strokeWidth: defaultOptions.setting.STROKE_WIDTH, // 默认线条宽度
             opacity: defaultOptions.setting.OPACITY // 默认透明度
-        }
-    },
-    {
-        name: 'freeHighlight',
-        type: AnnotationType.FREE_HIGHLIGHT,
-        pdfjsEditorType: PdfjsAnnotationEditorType.INK,
-        pdfjsAnnotationType: PdfjsAnnotationType.POLYLINE,
-        subtype: 'PolyLine',
-        isOnce: false,
-        readonly: false,
-        icon: <FreeHighlightIcon />,
-        style: {
-            color: defaultOptions.setting.COLOR, // 默认自由高亮颜色
-            strokeWidth: 10, // 默认线条宽度
-            opacity: 0.5 // 默认透明度
         }
     },
     {
@@ -278,6 +229,16 @@ export const annotationDefinitions: IAnnotationType[] = [
             fontSize: defaultOptions.setting.FONT_SIZE, // 默认字体大小
             opacity: defaultOptions.setting.OPACITY // 默认透明度
         }
+    },
+    {
+        name: 'stamp',
+        type: AnnotationType.STAMP,
+        pdfjsEditorType: PdfjsAnnotationEditorType.STAMP,
+        pdfjsAnnotationType: PdfjsAnnotationType.STAMP,
+        subtype: 'Stamp',
+        isOnce: true,
+        readonly: false,
+        icon: <BookmarkIcon />
     }
 ]
 
