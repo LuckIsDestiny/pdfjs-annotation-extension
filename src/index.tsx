@@ -30,59 +30,109 @@ class PdfjsAnnotationExtension {
     painter: Painter // 画笔实例
     appOptions: AppOptions
     loadEnd: Boolean
+    saveDataInterval: NodeJS.Timeout | null = null;
 
     constructor() {
         this.loadEnd = false
-        // 初始化 PDF.js 对象和相关属性
-        this.PDFJS_PDFViewerApplication = (window as any).PDFViewerApplication
-        this.PDFJS_EventBus = this.PDFJS_PDFViewerApplication.eventBus
-        this.$PDFJS_sidebarContainer = this.PDFJS_PDFViewerApplication.appConfig.sidebar.sidebarContainer
-        this.$PDFJS_toolbar_container = this.PDFJS_PDFViewerApplication.appConfig.toolbar.container
-        this.$PDFJS_viewerContainer = this.PDFJS_PDFViewerApplication.appConfig.viewerContainer
-        this.$PDFJS_mainContainer = this.PDFJS_PDFViewerApplication.appConfig.mainContainer
-        // 使用 createRef 方法创建 React 引用
-        this.customToolbarRef = createRef<CustomToolbarRef>()
-        this.customPopbarRef = createRef<CustomPopbarRef>()
-        this.customCommentRef = createRef<CustomCommentRef>()
-        // 加载多语言
-        initializeI18n(this.PDFJS_PDFViewerApplication.l10n.getLanguage())
+        // Wait for PDFViewerApplication to be available
+        this.waitForPDFViewerInitialization().then(() => {
+            // Initialize PDF.js objects and related properties
+            this.PDFJS_PDFViewerApplication = (window as any).PDFViewerApplication;
+            this.PDFJS_EventBus = this.PDFJS_PDFViewerApplication.eventBus;
+            this.$PDFJS_sidebarContainer = this.PDFJS_PDFViewerApplication.appConfig.sidebar.sidebarContainer;
+            this.$PDFJS_toolbar_container = this.PDFJS_PDFViewerApplication.appConfig.toolbar.container;
+            this.$PDFJS_viewerContainer = this.PDFJS_PDFViewerApplication.appConfig.viewerContainer;
+            this.$PDFJS_mainContainer = this.PDFJS_PDFViewerApplication.appConfig.mainContainer;
 
-        // 设置 appOptions 的默认值
-        this.appOptions = {
-            [HASH_PARAMS_USERNAME]: i18n.t('normal.unknownUser'), // 默认用户名
-            [HASH_PARAMS_GET_URL]: '', // 默认 GET URL
-            [HASH_PARAMS_POST_URL]: '', // 默认 POST URL
-        };
+            // Initialize the rest of the code
+            this.customToolbarRef = createRef<CustomToolbarRef>();
+            this.customPopbarRef = createRef<CustomPopbarRef>();
+            this.customCommentRef = createRef<CustomCommentRef>();
 
-        // 处理地址栏参数
-        this.parseHashParams()
-        // 创建画笔实例
-        this.painter = new Painter({
-            userName: this.getOption(HASH_PARAMS_USERNAME),
-            PDFViewerApplication: this.PDFJS_PDFViewerApplication,
-            PDFJS_EventBus: this.PDFJS_EventBus,
-            setDefaultMode: () => {
-                this.customToolbarRef.current.activeAnnotation(annotationDefinitions[0])
-            },
-            onWebSelectionSelected: range => {
-                this.customPopbarRef.current.open(range)
-            },
-            onStoreAdd: annotation => {
-                this.customCommentRef.current.addAnnotation(annotation)
-            },
-            onStoreDelete:(id) => {
-                this.customCommentRef.current.delAnnotation(id)
-            },
-            onAnnotationSelected: (annotation, isClick) => {
-                this.customCommentRef.current.selectedAnnotation(annotation, isClick)
-            },
-            onAnnotationChange: (annotation) => {
-                this.customCommentRef.current.updateAnnotation(annotation)
-            }
-        })
-        // 初始化操作
-        this.init()
+            initializeI18n(this.PDFJS_PDFViewerApplication.l10n.getLanguage());
+
+            // Set appOptions default values
+            this.appOptions = {
+                [HASH_PARAMS_USERNAME]: i18n.t('normal.unknownUser'), 
+                [HASH_PARAMS_GET_URL]: '', 
+                [HASH_PARAMS_POST_URL]: '', 
+            };
+
+            this.parseHashParams();
+            
+            this.painter = new Painter({
+                userName: this.getOption(HASH_PARAMS_USERNAME),
+                PDFViewerApplication: this.PDFJS_PDFViewerApplication,
+                PDFJS_EventBus: this.PDFJS_EventBus,
+                setDefaultMode: () => {
+                    this.customToolbarRef.current.activeAnnotation(annotationDefinitions[0]);
+                },
+                onWebSelectionSelected: range => {
+                    this.customPopbarRef.current.open(range);
+                },
+                onStoreAdd: annotation => {
+                    this.customCommentRef.current.addAnnotation(annotation);
+                },
+                onStoreDelete: (id) => {
+                    this.customCommentRef.current.delAnnotation(id);
+                },
+                onAnnotationSelected: (annotation, isClick) => {
+                    this.customCommentRef.current.selectedAnnotation(annotation, isClick);
+                },
+                onAnnotationChange: (annotation) => {
+                    this.customCommentRef.current.updateAnnotation(annotation);
+                }
+            });
+
+            // Initialize operations
+            this.init();
+            this.startAutoSave();
+        }).catch((error) => {
+            console.error('Error initializing PDFViewerApplication:', error);
+        });
     }
+
+    // Wait for PDFViewerApplication to be initialized
+    private waitForPDFViewerInitialization() {
+        return new Promise<void>((resolve, reject) => {
+            const maxAttempts = 100; // Prevent infinite waiting
+            let attempts = 0;
+
+            const checkInitialization = () => {
+                if ((window as any).PDFViewerApplication) {
+                    resolve();
+                } else if (attempts < maxAttempts) {
+                    attempts++;
+                    setTimeout(checkInitialization, 50); // Check every 50ms
+                } else {
+                    reject(new Error('PDFViewerApplication not initialized.'));
+                }
+            };
+
+            checkInitialization();
+        });
+    }
+
+    /**
+     * @description Start auto-save every 20 seconds
+     */
+    private startAutoSave(): void {
+        this.saveDataInterval = setInterval(() => {
+            console.log("Auto-saving annotations...");
+            this.saveData();
+        }, 20000); // 20 seconds in milliseconds
+    }
+
+    /**
+     * @description Stop the auto-save process
+     */
+    private stopAutoSave(): void {
+        if (this.saveDataInterval) {
+            clearInterval(this.saveDataInterval);
+            this.saveDataInterval = null;
+        }
+    }
+
 
     /**
      * @description 初始化 PdfjsAnnotationExtension 类
@@ -266,23 +316,13 @@ class PdfjsAnnotationExtension {
      * @returns 
      */
     private async getData(): Promise<any[]> {
-        const getUrl = this.getOption(HASH_PARAMS_GET_URL);
-        if (!getUrl) {
+        const encodedUrl = this.getOption(HASH_PARAMS_GET_URL);
+        if (!encodedUrl) {
             return [];
         }
-        try {
-            const response = await fetch(getUrl, { method: 'GET' });
+        const annotationData = decodeURIComponent(encodedUrl);
 
-            if (!response.ok) {
-                console.error(`Fetch failed: ${response.status} ${response.statusText}`);
-                return [];
-            }
-
-            return await response.json();
-        } catch (error) {
-            console.error('Fetch error:', error);
-            return [];
-        }
+        return JSON.parse(annotationData);
     }
 
     /**
@@ -313,6 +353,13 @@ class PdfjsAnnotationExtension {
         } catch (error) {
             console.error('Error while saving data:', error);
         }
+    }
+
+    /**
+     * @description Cleanup resources (if needed)
+     */
+    public cleanup(): void {
+        this.stopAutoSave(); // Ensure auto-save stops when the instance is cleaned up
     }
 
 }

@@ -1,7 +1,7 @@
 import Konva from 'konva'
 import { KonvaEventObject } from 'konva/lib/Node'
 
-import { AnnotationType, IAnnotationType } from '../../const/definitions'
+import { AnnotationType, IAnnotationStore, IAnnotationType } from '../../const/definitions'
 import { resizeImage, setCssCustomProperty } from '../../utils/utils'
 import { CURSOR_CSS_PROPERTY } from '../const'
 import { Editor, IEditorOptions } from './editor'
@@ -21,7 +21,8 @@ export class EditorStamp extends Editor {
      */
     constructor(EditorOptions: IEditorOptions, defaultStampUrl: string | null) {
         super({ ...EditorOptions, editorType: AnnotationType.STAMP }) // 调用父类的构造函数
-        this.stampUrl = defaultStampUrl // 设置签章图片 URL
+        // this.stampUrl = defaultStampUrl // 设置签章图片 URL
+        this.stampUrl = 'images/bookmark.png'
         if (defaultStampUrl) {
             this.createCursorImg() // 如果有默认签章图片 URL，则创建光标图像
         }
@@ -120,7 +121,7 @@ export class EditorStamp extends Editor {
                 {
                     id,
                     contentsObj: {
-                        text: '',
+                        text: `Bookmark`,
                         image: this.stampUrl
                     },
                 }
